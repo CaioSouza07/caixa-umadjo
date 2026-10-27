@@ -9,4 +9,5 @@ import com.umadjo.api.domain.user.entity.User;
 
 public interface UserRepository extends JpaRepository<User, UUID>{
     UserDetails findByEmail(String email);
+    boolean existsByEmail(String email);
 }

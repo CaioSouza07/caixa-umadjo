@@ -1,0 +1,7 @@
+package com.umadjo.api.infra.exception.exceptions;
+
+public class SecurityException extends RuntimeException {
+    public SecurityException(String message) {
+        super(message);
+    }
+}
