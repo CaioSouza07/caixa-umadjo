@@ -16,5 +16,7 @@ public record CreateUserRequest(
 
     @NotBlank(message = "Senha é obrigatória")
     @Size(max = 6, message = "Senha deve ter no mínimo 6 caracteres")
-    String password
+    String password,
+
+    String securityToken
 ) {}
