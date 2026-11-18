@@ -18,6 +18,5 @@ api:
   security:
     token: 
       jwt: ${SECURITY_TOKEN_JWT_API}
-      create-user: ${SECURITY_TOKEN_CREATE_USER_API}
     cors:
       origins: ${SECURITY_CORS_ORIGINS}

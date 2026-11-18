@@ -2,4 +2,6 @@ package com.umadjo.api.domain.user.dto;
 
 import java.util.UUID;
 
-public record UserResponse(UUID id, String name, String email) {}
+import com.umadjo.api.domain.user.entity.UserRole;
+
+public record UserResponse(UUID id, String name, String email, UserRole role) {}

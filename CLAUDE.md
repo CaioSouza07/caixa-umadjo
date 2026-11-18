@@ -21,7 +21,7 @@ Monorepo com API (Spring Boot) e front web (React).
 ## Ambiente
 - A API lê o `.env` da raiz do repo (`../../.env`). Variáveis obrigatórias:
   `DATASOURCE_URL`, `DATASOURCE_USERNAME`, `DATASOURCE_PASSWORD`,
-  `SECURITY_TOKEN_JWT_API`, `SECURITY_TOKEN_CREATE_USER_API`, `SECURITY_CORS_ORIGINS`
+  `SECURITY_TOKEN_JWT_API`, `SECURITY_CORS_ORIGINS`
 - Precisa de um PostgreSQL rodando.  <!-- TODO: docker? local? -->
 
 ## Arquitetura da API
