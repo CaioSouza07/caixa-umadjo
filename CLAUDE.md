@@ -9,7 +9,7 @@ Monorepo com API (Spring Boot) e front web (React).
 ## Comandos
 ### API (em `apps/api`)
 - Rodar: `mvn spring-boot:run`
-- Testes: `mvn test`
+- Testes: `mvn test` (unitários + `@WebMvcTest`; não precisam de banco nem de `.env`)
 ### Web (em `apps/web`)
 - Dev: `npm run dev`
 - Build: `npm run build`
