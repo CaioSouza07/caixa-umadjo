@@ -28,6 +28,7 @@ bash scripts/up.sh
 | `logs.sh` | Mostra os logs em tempo real |
 | `status.sh` | Mostra o que está rodando e se está saudável |
 | `db-psql.sh` | Abre o terminal SQL (`psql`) dentro do banco |
+| `db-create-admin.sh` | Cria (ou atualiza) o usuário admin |
 | `clean.sh` | Limpa sobras de build do Docker |
 
 ## Detalhes
@@ -59,6 +60,8 @@ Pede confirmação; para pular, use `-y`:
 ```bash
 ./scripts/db-purge.sh -y && ./scripts/db-up.sh   # reset completo do banco
 ```
+
+Depois do reset não existe nenhum usuário: suba a API e crie o admin com `db-create-admin.sh`.
 
 ### `logs.sh`
 Mostra as últimas 100 linhas e continua acompanhando. `Ctrl+C` sai (os containers continuam rodando).
@@ -94,6 +97,20 @@ Abre o `psql` já conectado ao banco do projeto, sem pedir senha. O banco precis
 ./scripts/db-psql.sh                                      # interativo: \dt lista tabelas, \q sai
 ./scripts/db-psql.sh -c "select email, role from users"   # um comando só
 ```
+
+### `db-create-admin.sh`
+Cria o usuário admin direto no banco, com a senha passada como argumento:
+
+```bash
+./scripts/db-create-admin.sh minhaSenha123
+```
+
+- Nome `admin`, e-mail `admin@email.com`, papel `ADMIN`.
+- A senha segue as mesmas regras da API: mínimo de 6 caracteres e máximo de 72 bytes.
+- A senha é salva com hash BCrypt gerado pelo próprio Postgres (extensão `pgcrypto`, removida no fim se não existia antes), no mesmo formato que a API usa no login.
+- Se o admin já existir, a senha é trocada e ele volta a ser `ADMIN` e ativo. Serve também para recuperar a senha.
+- Precisa do banco rodando e das tabelas criadas: a API tem que ter subido ao menos uma vez (o Flyway cria as tabelas). Depois de um `db-purge.sh`, suba a API de novo antes de rodar este script.
+- A senha fica no histórico do terminal. Para evitar, comece o comando com um espaço (` ./scripts/db-create-admin.sh ...`), o bash não grava comandos que começam com espaço.
 
 ### `clean.sh`
 Remove imagens `<none>` (versões antigas que sobram a cada build com código alterado) e cache de build sem uso, mostrando o espaço antes e depois.

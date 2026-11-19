@@ -25,6 +25,7 @@ Monorepo com API (Spring Boot) e front web (React).
   - `logs.sh [api|web|postgres]` → segue os logs (sem argumento: todos)
   - `status.sh` → containers do projeto e se estão healthy
   - `db-psql.sh [args do psql]` → psql dentro do container (ex.: `-c "select ..."`)
+  - `db-create-admin.sh <senha>` → cria/atualiza o admin `admin@email.com` (hash BCrypt via pgcrypto)
   - `clean.sh` → remove imagens `<none>` e cache de build sem uso
 - Documentação de uso: `scripts/README.md`. Script novo: `git add --chmod=+x`.
 - `scripts/_common.sh` centraliza o `docker compose` com os dois arquivos + `--env-file .env`.
@@ -45,5 +46,5 @@ Monorepo com API (Spring Boot) e front web (React).
 ## Convenções
 - Migrations Flyway em `src/main/resources/db/migration`, formato `V<n>__descricao.sql`.
   Nunca editar uma migration já aplicada: criar uma nova.
-- Commits em português, no estilo Conventional Commits (`feat:`, `fix:`...)
+- Commits no estilo Conventional Commits (`feat:`, `fix:`...), de preferência em inglês
 - Branches: `feature/<descricao>`
