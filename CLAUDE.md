@@ -18,9 +18,16 @@ Monorepo com API (Spring Boot) e front web (React).
 ### Docker (na raiz do repo)
 - `infra/docker-compose.yml` → só o Postgres (uso normal de dev: API e web rodam localmente).
 - `infra/docker-compose.app.yml` → API (:8080) + web (:3000); sempre combinado com o de cima.
-- Subir banco: `docker compose -f infra/docker-compose.yml --env-file .env up -d`
-- Subir tudo: `docker compose -f infra/docker-compose.yml -f infra/docker-compose.app.yml --env-file .env up -d --build`
-- Parar: trocar `up -d` por `down` · Apagar dados do banco: `down -v`
+- Scripts em `scripts/` (bash; rodar no WSL, de qualquer pasta):
+  - `up.sh` → sobe API + front (e o banco, se preciso) · `down.sh` → para API + front, banco segue
+  - `db-up.sh` → sobe só o banco · `db-down.sh` → para tudo, mantém os dados
+  - `db-purge.sh` → para tudo e apaga o volume do banco (pede confirmação; `-y` pula)
+  - `logs.sh [api|web|postgres]` → segue os logs (sem argumento: todos)
+  - `status.sh` → containers do projeto e se estão healthy
+  - `db-psql.sh [args do psql]` → psql dentro do container (ex.: `-c "select ..."`)
+  - `clean.sh` → remove imagens `<none>` e cache de build sem uso
+- Documentação de uso: `scripts/README.md`. Script novo: `git add --chmod=+x`.
+- `scripts/_common.sh` centraliza o `docker compose` com os dois arquivos + `--env-file .env`.
 - Dockerfiles ficam em cada app (`apps/api/Dockerfile`, `apps/web/Dockerfile`).
 
 ## Ambiente
