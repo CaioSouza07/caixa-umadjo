@@ -11,8 +11,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.mock.http.MockHttpInputMessage;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.method.annotation.ExceptionHandlerMethodResolver;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -29,6 +36,13 @@ import com.umadjo.api.infra.exception.exceptions.UserAlreadyExistsException;
 class GlobalExceptionHandlerTest {
 
     private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
+
+    /** Mesmo mecanismo que o Spring MVC usa para decidir qual @ExceptionHandler trata cada exceção. */
+    private static final ExceptionHandlerMethodResolver RESOLVER = new ExceptionHandlerMethodResolver(GlobalExceptionHandler.class);
+
+    private static String handlerChosenBySpringFor(Exception ex) {
+        return RESOLVER.resolveMethod(ex).getName();
+    }
 
     /** Todo erro precisa sair com status HTTP == code do corpo. */
     private void assertError(ResponseEntity<ErrorResponse> response, HttpStatus status, String message) {
@@ -74,12 +88,40 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("falha de autenticação (senha errada ou usuário desativado): 401 com mensagem genérica")
-    void authentication() {
-        assertError(handler.handleAuthentication(new BadCredentialsException("Bad credentials")),
-                HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos");
-        assertError(handler.handleAuthentication(new DisabledException("User is disabled")),
-                HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos");
+    @DisplayName("falhas de login (senha errada, inexistente, desativado, bloqueado): 401 'E-mail ou senha inválidos'")
+    void loginFailures() {
+        List<AuthenticationException> loginFailures = List.of(
+                new BadCredentialsException("Bad credentials"),
+                new UsernameNotFoundException("not found"),
+                new DisabledException("User is disabled"),
+                new LockedException("User is locked"));
+
+        for (AuthenticationException ex : loginFailures) {
+            assertThat(handlerChosenBySpringFor(ex)).as(ex.getClass().getSimpleName()).isEqualTo("handleLoginFailure");
+            assertError(handler.handleLoginFailure(ex), HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos");
+        }
+    }
+
+    @Test
+    @DisplayName("outras falhas de autenticação: 401 'Autenticação necessária' (não fala em e-mail/senha)")
+    void otherAuthenticationFailures() {
+        var ex = new InsufficientAuthenticationException("Full authentication is required");
+
+        assertThat(handlerChosenBySpringFor(ex)).isEqualTo("handleAuthentication");
+        assertError(handler.handleAuthentication(ex), HttpStatus.UNAUTHORIZED, "Autenticação necessária");
+    }
+
+    @Test
+    @DisplayName("autorização negada no controller (ex.: @PreAuthorize): 403, e não 500 pelo handler genérico")
+    void accessDenied() {
+        List<AccessDeniedException> denied = List.of(
+                new AccessDeniedException("Access Denied"),
+                new AuthorizationDeniedException("Access Denied")); // o que o @PreAuthorize lança
+
+        for (AccessDeniedException ex : denied) {
+            assertThat(handlerChosenBySpringFor(ex)).as(ex.getClass().getSimpleName()).isEqualTo("handleAccessDenied");
+            assertError(handler.handleAccessDenied(ex), HttpStatus.FORBIDDEN, "Você não tem permissão para realizar esta ação");
+        }
     }
 
     @Test

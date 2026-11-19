@@ -6,7 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AccountStatusException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -39,9 +43,25 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.CONFLICT, ex.getMessage());
     }
 
+    // Falhas do login: senha errada, usuário inexistente ou conta desativada/bloqueada.
+    // Mensagem única de propósito, para não revelar se o e-mail existe.
+    @ExceptionHandler({ BadCredentialsException.class, UsernameNotFoundException.class, AccountStatusException.class })
+    public ResponseEntity<ErrorResponse> handleLoginFailure(AuthenticationException ex) {
+        return build(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos");
+    }
+
+    // Qualquer outra falha de autenticação que chegue ao controller
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex) {
-        return build(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos");
+        return build(HttpStatus.UNAUTHORIZED, "Autenticação necessária");
+    }
+
+    // Autorização negada dentro do controller (ex.: @PreAuthorize). Sem este handler,
+    // a exceção cairia no handleUnexpected e viraria 500.
+    // Cobre também o AuthorizationDeniedException, que é subclasse.
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        return build(HttpStatus.FORBIDDEN, "Você não tem permissão para realizar esta ação");
     }
 
     @ExceptionHandler(Exception.class)
