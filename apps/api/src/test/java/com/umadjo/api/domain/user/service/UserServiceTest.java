@@ -50,7 +50,6 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        // mapper real: é simples e sem dependências, então não faz sentido mockar
         service = new UserService(repository, new UserMapper(), authenticationManager, passwordEncoder, tokenService);
     }
 

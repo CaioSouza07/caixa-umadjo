@@ -44,6 +44,7 @@ public class SecurityConfig {
                     authorize.requestMatchers("/auth/login").permitAll();
                     authorize.requestMatchers(HttpMethod.POST, "/auth/register").hasRole("ADMIN");
                     authorize.requestMatchers("/error").permitAll();
+                    authorize.requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**").permitAll();
                     authorize.anyRequest().authenticated();
                 })
                 .exceptionHandling(exception -> exception

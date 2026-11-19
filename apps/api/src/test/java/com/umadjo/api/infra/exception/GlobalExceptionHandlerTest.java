@@ -116,7 +116,7 @@ class GlobalExceptionHandlerTest {
     void accessDenied() {
         List<AccessDeniedException> denied = List.of(
                 new AccessDeniedException("Access Denied"),
-                new AuthorizationDeniedException("Access Denied")); // o que o @PreAuthorize lança
+                new AuthorizationDeniedException("Access Denied"));
 
         for (AccessDeniedException ex : denied) {
             assertThat(handlerChosenBySpringFor(ex)).as(ex.getClass().getSimpleName()).isEqualTo("handleAccessDenied");

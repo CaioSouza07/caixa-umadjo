@@ -63,7 +63,6 @@ class SecurityFilterTest {
 
     private void run() throws Exception {
         filter.doFilter(request, new MockHttpServletResponse(), chain);
-        // em todos os casos a requisição segue adiante; quem barra é a regra de autorização
         assertThat(chain.getRequest()).as("filterChain.doFilter foi chamado").isNotNull();
     }
 

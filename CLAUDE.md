@@ -15,14 +15,20 @@ Monorepo com API (Spring Boot) e front web (React).
 - Build: `npm run build`
 - Lint: `npm run lint`
 
-### Docker
-- [A confirmar ainda]
+### Docker (na raiz do repo)
+- `infra/docker-compose.yml` → só o Postgres (uso normal de dev: API e web rodam localmente).
+- `infra/docker-compose.app.yml` → API (:8080) + web (:3000); sempre combinado com o de cima.
+- Subir banco: `docker compose -f infra/docker-compose.yml --env-file .env up -d`
+- Subir tudo: `docker compose -f infra/docker-compose.yml -f infra/docker-compose.app.yml --env-file .env up -d --build`
+- Parar: trocar `up -d` por `down` · Apagar dados do banco: `down -v`
+- Dockerfiles ficam em cada app (`apps/api/Dockerfile`, `apps/web/Dockerfile`).
 
 ## Ambiente
 - A API lê o `.env` da raiz do repo (`../../.env`). Variáveis obrigatórias:
   `DATASOURCE_URL`, `DATASOURCE_USERNAME`, `DATASOURCE_PASSWORD`,
   `SECURITY_TOKEN_JWT_API`, `SECURITY_CORS_ORIGINS`
-- Precisa de um PostgreSQL rodando.  <!-- TODO: docker? local? -->
+  (+ `POSTGRES_DB`, `POSTGRES_PORT`, usadas pelos compose de `infra/`)
+- Precisa de um PostgreSQL rodando: usar o compose de `infra/` (ver Docker acima).
 
 ## Arquitetura da API
 - `domain/<entidade>/` → `dto`, `entity`, `mapper`, `repository`, `service`
