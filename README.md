@@ -89,6 +89,19 @@ cd apps/web && npm run lint
 cd apps/web && npm run build
 ```
 
+## CI
+
+O workflow `.github/workflows/ci.yml` roda a cada PR (abertura e cada push), a cada push na `main` e manualmente pela aba Actions. Os jobs rodam em paralelo:
+
+| Job | O que verifica |
+|---|---|
+| API (build + testes) | `mvn verify`: compila, roda os testes e gera o `.jar` |
+| Web (lint + build) | `npm ci`, `npm run lint` e `npm run build` |
+| Scripts (shellcheck) | Erros comuns de bash em `scripts/*.sh` |
+| Smoke test (Docker) | Sobe banco, API e front com `./scripts/up.sh` e confere se a API responde `UP` (o que inclui conexão com o banco e migrations aplicadas) e se o front responde |
+
+O smoke test não testa funcionalidades, só se a aplicação sobe e responde. Funcionalidades são cobertas pelos testes da API.
+
 ## Convenções
 
 - Branches: `feature/<descricao>`

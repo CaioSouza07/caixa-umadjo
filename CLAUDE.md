@@ -31,6 +31,13 @@ Monorepo com API (Spring Boot) e front web (React).
 - `scripts/_common.sh` centraliza o `docker compose` com os dois arquivos + `--env-file .env`.
 - Dockerfiles ficam em cada app (`apps/api/Dockerfile`, `apps/web/Dockerfile`).
 
+### CI (`.github/workflows/ci.yml`)
+- Roda em todo PR, push na `main` e manual. Jobs: API (`mvn verify`), Web (lint + build),
+  Scripts (`shellcheck --exclude=SC1091`), Smoke test (`up.sh` + health `UP` + front 200).
+- O smoke cria o `.env` a partir do `.env.example` e falha se sobrar variável vazia:
+  variável nova no `.env.example` sem valor padrão precisa ser preenchida no step "Criar .env de CI".
+- Smoke é só "sobe e responde": não adicionar testes de funcionalidade nele.
+
 ## Ambiente
 - A API lê o `.env` da raiz do repo (`../../.env`). Variáveis obrigatórias:
   `DATASOURCE_URL`, `DATASOURCE_USERNAME`, `DATASOURCE_PASSWORD`,
