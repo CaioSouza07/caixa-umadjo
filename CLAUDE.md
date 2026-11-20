@@ -15,14 +15,28 @@ Monorepo com API (Spring Boot) e front web (React).
 - Build: `npm run build`
 - Lint: `npm run lint`
 
-### Docker
-- [A confirmar ainda]
+### Docker (na raiz do repo)
+- `infra/docker-compose.yml` → só o Postgres (uso normal de dev: API e web rodam localmente).
+- `infra/docker-compose.app.yml` → API (:8080) + web (:3000); sempre combinado com o de cima.
+- Scripts em `scripts/` (bash; rodar no WSL, de qualquer pasta):
+  - `up.sh` → sobe API + front (e o banco, se preciso) · `down.sh` → para API + front, banco segue
+  - `db-up.sh` → sobe só o banco · `db-down.sh` → para tudo, mantém os dados
+  - `db-purge.sh` → para tudo e apaga o volume do banco (pede confirmação; `-y` pula)
+  - `logs.sh [api|web|postgres]` → segue os logs (sem argumento: todos)
+  - `status.sh` → containers do projeto e se estão healthy
+  - `db-psql.sh [args do psql]` → psql dentro do container (ex.: `-c "select ..."`)
+  - `db-create-admin.sh <senha>` → cria/atualiza o admin `admin@email.com` (hash BCrypt via pgcrypto)
+  - `clean.sh` → remove imagens `<none>` e cache de build sem uso
+- Documentação de uso: `scripts/README.md`. Script novo: `git add --chmod=+x`.
+- `scripts/_common.sh` centraliza o `docker compose` com os dois arquivos + `--env-file .env`.
+- Dockerfiles ficam em cada app (`apps/api/Dockerfile`, `apps/web/Dockerfile`).
 
 ## Ambiente
 - A API lê o `.env` da raiz do repo (`../../.env`). Variáveis obrigatórias:
   `DATASOURCE_URL`, `DATASOURCE_USERNAME`, `DATASOURCE_PASSWORD`,
   `SECURITY_TOKEN_JWT_API`, `SECURITY_CORS_ORIGINS`
-- Precisa de um PostgreSQL rodando.  <!-- TODO: docker? local? -->
+  (+ `POSTGRES_DB`, `POSTGRES_PORT`, usadas pelos compose de `infra/`)
+- Precisa de um PostgreSQL rodando: usar o compose de `infra/` (ver Docker acima).
 
 ## Arquitetura da API
 - `domain/<entidade>/` → `dto`, `entity`, `mapper`, `repository`, `service`
@@ -32,5 +46,5 @@ Monorepo com API (Spring Boot) e front web (React).
 ## Convenções
 - Migrations Flyway em `src/main/resources/db/migration`, formato `V<n>__descricao.sql`.
   Nunca editar uma migration já aplicada: criar uma nova.
-- Commits em português, no estilo Conventional Commits (`feat:`, `fix:`...)
+- Commits no estilo Conventional Commits (`feat:`, `fix:`...), de preferência em inglês
 - Branches: `feature/<descricao>`

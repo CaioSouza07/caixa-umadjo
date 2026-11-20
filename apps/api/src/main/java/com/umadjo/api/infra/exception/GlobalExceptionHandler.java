@@ -43,22 +43,16 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.CONFLICT, ex.getMessage());
     }
 
-    // Falhas do login: senha errada, usuário inexistente ou conta desativada/bloqueada.
-    // Mensagem única de propósito, para não revelar se o e-mail existe.
     @ExceptionHandler({ BadCredentialsException.class, UsernameNotFoundException.class, AccountStatusException.class })
     public ResponseEntity<ErrorResponse> handleLoginFailure(AuthenticationException ex) {
         return build(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos");
     }
 
-    // Qualquer outra falha de autenticação que chegue ao controller
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex) {
         return build(HttpStatus.UNAUTHORIZED, "Autenticação necessária");
     }
 
-    // Autorização negada dentro do controller (ex.: @PreAuthorize). Sem este handler,
-    // a exceção cairia no handleUnexpected e viraria 500.
-    // Cobre também o AuthorizationDeniedException, que é subclasse.
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
         return build(HttpStatus.FORBIDDEN, "Você não tem permissão para realizar esta ação");

@@ -33,10 +33,6 @@ import com.umadjo.api.infra.authentication.config.SecurityErrorHandler;
 import com.umadjo.api.infra.authentication.dto.AuthResponse;
 import com.umadjo.api.infra.authentication.service.TokenService;
 
-/**
- * Regras de acesso do SecurityConfig aplicadas aos endpoints de /auth.
- * Sobe só a camada web (sem banco): service, token e repositório são mocks.
- */
 @WebMvcTest(AuthController.class)
 @Import({ SecurityConfig.class, SecurityErrorHandler.class })
 @TestPropertySource(properties = "api.security.cors.origins=http://localhost:5173")
@@ -156,6 +152,15 @@ class AuthControllerSecurityTest {
     }
 
     // ---------- demais rotas ----------
+
+    @Test
+    @DisplayName("GET /actuator/health é público: sem token não dá 401")
+    void healthIsPublic() throws Exception {
+        // O @WebMvcTest não sobe o Actuator, então a rota não existe aqui (404).
+        // O que importa é que a segurança deixou passar, em vez de barrar com 401.
+        mvc.perform(get("/actuator/health"))
+                .andExpect(status().isNotFound());
+    }
 
     @Test
     @DisplayName("rota qualquer sem token: 401")

@@ -1,0 +1,38 @@
+#   docker compose -f infra/docker-compose.yml -f infra/docker-compose.app.yml --env-file .env up -d --build
+
+# API: http://localhost:8080   Front: http://localhost:3000
+
+services:
+  api:
+    build:
+      context: ../apps/api
+    container_name: caixa-umadjo-api
+    restart: unless-stopped
+    env_file: ../.env
+    environment:
+      DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SECURITY_CORS_ORIGINS: ${SECURITY_CORS_ORIGINS},http://localhost:3000
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  web:
+    build:
+      context: ../apps/web
+      args:
+        VITE_API_URL: http://localhost:8080
+    container_name: caixa-umadjo-web
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      api:
+        condition: service_healthy
