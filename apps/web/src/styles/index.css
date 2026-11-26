@@ -1,0 +1,51 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  --color-page: #eeeeee;
+  --color-frame: #f6f6f6;
+  --color-card: #ffffff;
+  --color-ink: #111111;
+  --color-ink-muted: #6b6b6b;
+  --color-ink-disabled: #8a8a8a;
+  --color-brand: #161616;
+  --color-on-brand: #ffffff;
+  --color-line: #e0e0e0;
+  --color-field: #8a8a8a;
+  --color-focus: #3d5bc4;
+  --color-danger: #c42b30;
+  --color-danger-soft: #fdf1f1;
+  --color-success: #1a7a47;
+  --color-disabled: #efefef;
+  --color-chip: #f2f2f2;
+
+  --radius-field: 14px;
+  --radius-card: 28px;
+  --shadow-overlay: 0 16px 40px rgba(0, 0, 0, 0.16);
+}
+
+@layer base {
+  body {
+    margin: 0;
+    background: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  button,
+  input {
+    font-family: inherit;
+  }
+
+  :where(button, input, a):focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}
